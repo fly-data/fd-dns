@@ -5,6 +5,7 @@ import cn.jinnyu.fd.dns.coredns.constant.ConstCoreDns;
 import cn.jinnyu.fd.dns.coredns.exception.CoreDnsException;
 import cn.jinnyu.fd.dns.coredns.exception.EasyException;
 import cn.jinnyu.fd.dns.coredns.model.CoreDnsConfig;
+import cn.jinnyu.fd.dns.exception.DnsException;
 import cn.jinnyu.fd.dns.model.DnsAction;
 import cn.jinnyu.fd.dns.model.DnsRecord;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +81,11 @@ public class HostFileImpl extends AbstractDnsImpl {
         } catch (IOException e) {
             throw new CoreDnsException(EasyException.CORE_DNS_IO_FAILED);
         }
+    }
+
+    @Override
+    public boolean readHostFromDatabase(boolean forceOverride) throws DnsException {
+        return false;
     }
 
     private List<DnsRecord> loadHostsFromFile() throws IOException {

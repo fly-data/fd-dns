@@ -29,4 +29,9 @@ public class GrpcImpl extends AbstractDnsImpl {
         return false;
     }
 
+    @Override
+    public boolean readHostFromDatabase(boolean forceOverride) throws DnsException {
+        return false;
+    }
+
 }

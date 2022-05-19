@@ -18,12 +18,21 @@ public interface FdDns {
     /**
      * 操作DNS
      *
-     * @param action  操作类型
+     * @param action    操作类型
      * @param newRecord DNS记录
      * @param oldRecord DNS记录
      * @return 操作是否成功
      * @throws DnsException 操作异常
      */
     boolean doAction(DnsAction action, DnsRecord newRecord, DnsRecord oldRecord) throws DnsException;
+
+    /**
+     * 从数据库加载DNS记录
+     *
+     * @param forceOverride 是否强制覆盖
+     * @return 操作是否成功
+     * @throws DnsException 操作异常
+     */
+    boolean readHostFromDatabase(boolean forceOverride) throws DnsException;
 
 }
