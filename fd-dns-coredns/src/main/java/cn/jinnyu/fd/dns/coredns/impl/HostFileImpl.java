@@ -2,11 +2,11 @@ package cn.jinnyu.fd.dns.coredns.impl;
 
 import cn.jinnyu.fd.dns.coredns.AbstractDnsImpl;
 import cn.jinnyu.fd.dns.coredns.constant.ConstCoreDns;
-import cn.jinnyu.fd.dns.coredns.exception.EasyException;
 import cn.jinnyu.fd.dns.coredns.exception.CoreDnsException;
+import cn.jinnyu.fd.dns.coredns.exception.EasyException;
 import cn.jinnyu.fd.dns.coredns.model.CoreDnsConfig;
+import cn.jinnyu.fd.dns.model.DnsAction;
 import cn.jinnyu.fd.dns.model.DnsRecord;
-import cn.jinnyu.fd.dns.model.DnsRecord.Action;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author jinyu@jinnyu.cn
@@ -38,34 +39,47 @@ public class HostFileImpl extends AbstractDnsImpl {
     }
 
     @Override
-    public boolean doAction(DnsRecord record) throws CoreDnsException {
-        String ip     = record.getIp();
-        String host   = record.getHost();
-        Action action = record.getAction();
+    public boolean doAction(DnsAction action, DnsRecord newRecord, DnsRecord oldRecord) throws CoreDnsException {
+        String ip   = newRecord.getIp();
+        String host = newRecord.getHost();
         try {
             switch (action) {
                 // 追加写入
                 case ADD -> {
-                    Files.writeString(path, record.getIp() + " " + record.getHost(), StandardOpenOption.APPEND);
+                    Files.writeString(path, ip + " " + host, StandardOpenOption.APPEND);
                     return true;
                 }
                 // 删除指定行
                 case DELETE -> {
                     List<DnsRecord> delete = loadHostsFromFile();
                     delete.removeIf(item -> item.getIp().equals(ip) && item.getHost().equals(host));
-                    // TODO 重新写入文件
+                    List<String> lines = delete.stream().map(item -> item.getIp() + " " + item.getHost()).collect(Collectors.toList());
+                    Files.write(path, lines, StandardOpenOption.TRUNCATE_EXISTING);
                     return true;
                 }
                 // 修改记录
                 case MODIFY -> {
                     List<DnsRecord> modify = loadHostsFromFile();
-                    // TODO 双向查找记录 并 修改
+                    // @formatter:off
+                    modify.stream().
+                            filter(item -> item.getIp().equals(oldRecord.getIp()) && item.getHost().equals(oldRecord.getHost())).
+                            forEach(item -> {
+                                item.setIp(ip);
+                                item.setHost(host);
+                            });
+                    // @formatter:on
+                    List<String> lines = modify.stream().map(item -> item.getIp() + " " + item.getHost()).collect(Collectors.toList());
+                    Files.write(path, lines, StandardOpenOption.TRUNCATE_EXISTING);
+                    return true;
+                }
+                default -> {
+                    log.warn("No action matched! [{}]", action);
+                    return false;
                 }
             }
         } catch (IOException e) {
             throw new CoreDnsException(EasyException.CORE_DNS_IO_FAILED);
         }
-        return false;
     }
 
     private List<DnsRecord> loadHostsFromFile() throws IOException {
@@ -77,7 +91,7 @@ public class HostFileImpl extends AbstractDnsImpl {
                 filter(line -> null != line && !"".equals(line) && !line.startsWith("#")).
                 forEachOrdered(line -> {
                     line = line.replaceAll(pattern, " ").trim();
-                    String[] array   = line.split(" ");
+                    String[]  array  = line.split(" ");
                     DnsRecord record = new DnsRecord();
                     record.setIp(array[0]);
                     record.setHost(array[1]);

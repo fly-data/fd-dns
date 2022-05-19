@@ -3,6 +3,8 @@ package cn.jinnyu.fd.dns.coredns.impl;
 import cn.jinnyu.fd.dns.coredns.AbstractDnsImpl;
 import cn.jinnyu.fd.dns.coredns.constant.ConstCoreDns;
 import cn.jinnyu.fd.dns.coredns.model.CoreDnsConfig;
+import cn.jinnyu.fd.dns.exception.DnsException;
+import cn.jinnyu.fd.dns.model.DnsAction;
 import cn.jinnyu.fd.dns.model.DnsRecord;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +25,7 @@ public class GrpcImpl extends AbstractDnsImpl {
     }
 
     @Override
-    public boolean doAction(DnsRecord dnsRecord) {
+    public boolean doAction(DnsAction action, DnsRecord newRecord, DnsRecord oldRecord) throws DnsException {
         return false;
     }
 

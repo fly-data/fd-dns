@@ -9,18 +9,14 @@ import lombok.Data;
 @Data
 public class DnsRecord {
 
-    public enum Action {
-        ADD, DELETE, MODIFY
-    }
-
     public enum RecoedType {
-        A, AAAA, PTR
+        A, AAAA
     }
 
     /**
      * 操作类型
      */
-    private Action     action;
+    private DnsAction  action;
     /**
      * 记录类型
      */
