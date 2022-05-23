@@ -6,7 +6,7 @@
 
 ## 设计理念
 
-基于 `Spring Cloud Alibaba` 微服务体系对外提供统一的 `Dubbo3` 接口, 由实现具体实现完成对基础DNS服务的操作.
+基于 `Spring Cloud Alibaba` 微服务体系对外提供统一的 `Dubbo3` 接口, 由具体实现完成对基础DNS服务的操作.
 
 ## 已实现的DNS客户端
 
